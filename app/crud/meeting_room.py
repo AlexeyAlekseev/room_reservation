@@ -1,10 +1,11 @@
 from typing import Optional
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.meeting_room import MeetingRoom
-from app.schemas.meeting_room import MeetingRoomCreate
+from app.schemas.meeting_room import MeetingRoomCreate, MeetingRoomUpdate
 
 
 async def create_meeting_room(
@@ -44,4 +45,27 @@ async def get_meeting_room_by_id(
         select(MeetingRoom).where(MeetingRoom.id == room_id)
     )
     db_room = db_room.scalars().first()
+    return db_room
+
+async def update_meeting_room(
+        db_room: MeetingRoom,
+        room_in: MeetingRoomUpdate,
+        session: AsyncSession,
+) -> MeetingRoom:
+    obj_data = jsonable_encoder(db_room)
+    update_data = room_in.dict(exclude_unset=True)
+    for field in obj_data:
+        if field in update_data:
+            setattr(db_room, field, update_data[field])
+    session.add(db_room)
+    await session.commit()
+    await session.refresh(db_room)
+    return db_room
+
+async def delete_meeting_room(
+        db_room: MeetingRoom,
+        session: AsyncSession,
+) -> MeetingRoom:
+    await session.delete(db_room)
+    await session.commit()
     return db_room
