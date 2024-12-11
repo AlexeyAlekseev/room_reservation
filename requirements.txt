@@ -5,3 +5,4 @@ sqlalchemy==1.4.36
 alembic==1.7.7 #alembic init --template async alembic #alembic revision --autogenerate -m "First migration" #alembic upgrade head #alembic downgrade base
 fastapi-users[sqlalchemy]==10.0.6
 fastapi-users-db-sqlalchemy<5.0.0
+aiogoogle
